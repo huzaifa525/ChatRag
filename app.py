@@ -24,13 +24,13 @@ def query_pdf_with_llm(pdf_text, question):
     return response
 
 def format_response_html(response):
-    """Format the response for HTML/CSS-based visualization."""
+    """Format the response for simple and clean HTML/CSS visualization."""
     styled_response = "<div style='font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;'>"
     for line in response.split("\n"):
-        if line.strip().startswith("-"):
-            styled_response += f"<p style='margin-left: 20px; font-weight: bold;'>{line.strip()}</p>"
-        elif line.strip().isdigit():
-            styled_response += f"<p style='margin-left: 20px; color: #007BFF;'>{line.strip()}</p>"
+        if line.strip().startswith("1.") or line.strip().startswith("2.") or line.strip().startswith("3."):
+            styled_response += f"<p style='font-weight: bold;'>{line.strip()}</p>"
+        elif "**" in line:
+            styled_response += f"<p><b>{line.strip().replace('**', '')}</b></p>"
         else:
             styled_response += f"<p>{line.strip()}</p>"
     styled_response += "</div>"
@@ -43,7 +43,7 @@ def typing_effect_html(response, placeholder):
     for word in words:
         typed_response += word + " "
         placeholder.markdown(typed_response, unsafe_allow_html=True)
-        time.sleep(0.1)
+        time.sleep(0.05)  # Adjust typing speed here
 
 st.title("📄CleverBot - Powered by CleverFlow")
 
