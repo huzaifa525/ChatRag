@@ -1,4 +1,5 @@
 import os
+import time
 import tempfile
 import streamlit as st
 from PyPDF2 import PdfReader
@@ -27,6 +28,15 @@ def format_response(response):
     formatted = response.replace("\n", "  ")  # Add double spaces for line breaks in markdown
     formatted = formatted.replace("**", "\\*\\*")  # Escape existing bold indicators
     return f"<div style='font-family:monospace;'>\n\n{formatted}\n\n</div>"
+
+def typing_effect_word_by_word(response, placeholder):
+    """Simulates typing effect for the response word by word."""
+    words = response.split(" ")
+    typed_response = ""
+    for word in words:
+        typed_response += word + " "
+        placeholder.markdown(f"<div style='font-family:monospace;'>{typed_response.strip()}</div>", unsafe_allow_html=True)
+        time.sleep(0.1)  # Adjust typing speed here
 
 st.title("📄CleverBot - Powered by CleverFlow")
 
@@ -67,7 +77,7 @@ if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
             else:
                 full_response = query_pdf_with_llm(st.session_state.pdf_text, prompt)
                 formatted_response = format_response(full_response)
-                msg_placeholder.markdown(formatted_response, unsafe_allow_html=True)
+                typing_effect_word_by_word(formatted_response, msg_placeholder)
                 st.session_state.messages.append({"role": "assistant", "content": formatted_response})
         except Exception as e:
             st.error(f"An error occurred: {e}")
