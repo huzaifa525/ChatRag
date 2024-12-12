@@ -23,39 +23,30 @@ def query_pdf_with_llm(pdf_text, question):
     response = llm.invoke(prompt)
     return response
 
-def format_response_html(response):
-    """Format the response for clean and structured HTML/CSS visualization, including tables."""
-    styled_response = "<div style='font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;'>"
+def format_response_markdown(response):
+    """Format the response using Markdown for tables, lists, and math expressions."""
+    formatted = ""
     lines = response.split("\n")
-    if any("|" in line for line in lines):  # Check if response contains table format
-        styled_response += "<table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>"
-        for line in lines:
-            if "|" in line:
-                cells = line.split("|")
-                if any(cell.strip() for cell in cells):
-                    styled_response += "<tr style='border-bottom: 1px solid #ddd;'>"
-                    for cell in cells:
-                        styled_response += f"<td style='padding: 8px; text-align: left;'>{cell.strip()}</td>"
-                    styled_response += "</tr>"
-        styled_response += "</table>"
-    else:
-        for line in lines:
-            if line.strip().startswith("1.") or line.strip().startswith("2.") or line.strip().startswith("3."):
-                styled_response += f"<p style='font-weight: bold;'>{line.strip()}</p>"
-            elif "**" in line:
-                styled_response += f"<p><b>{line.strip().replace('**', '')}</b></p>"
-            else:
-                styled_response += f"<p>{line.strip()}</p>"
-    styled_response += "</div>"
-    return styled_response
+    for line in lines:
+        if "|" in line:  # Detect tables
+            formatted += f"{line}\n"
+        elif line.strip().startswith("-") or line.strip().startswith("1."):
+            formatted += f"{line}\n"
+        elif "\\(" in line or "\\)" in line:  # Detect LaTeX math expressions
+            formatted += f"$${line.strip()}$$\n"
+        elif "**" in line:
+            formatted += f"**{line.strip().replace('**', '')}**\n"
+        else:
+            formatted += f"{line.strip()}\n"
+    return formatted
 
-def typing_effect_html(response, placeholder):
-    """Simulates typing effect for HTML-based responses."""
+def typing_effect_markdown(response, placeholder):
+    """Simulates typing effect for Markdown-based responses."""
     words = response.split(" ")
     typed_response = ""
     for word in words:
         typed_response += word + " "
-        placeholder.markdown(typed_response, unsafe_allow_html=True)
+        placeholder.markdown(typed_response)
         time.sleep(0.05)  # Adjust typing speed here
 
 st.title("📄CleverBot - Powered by CleverFlow")
@@ -85,7 +76,7 @@ if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
 
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
-        msg_placeholder.markdown("<i>Thinking...</i>", unsafe_allow_html=True)
+        msg_placeholder.markdown("_Thinking..._", unsafe_allow_html=True)
         full_response = ""
 
         try:
@@ -93,8 +84,8 @@ if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
                 st.error("Please upload a PDF first.")
             else:
                 full_response = query_pdf_with_llm(st.session_state.pdf_text, prompt)
-                formatted_response = format_response_html(full_response)
-                msg_placeholder.markdown(formatted_response, unsafe_allow_html=True)
+                formatted_response = format_response_markdown(full_response)
+                typing_effect_markdown(formatted_response, msg_placeholder)
                 st.session_state.messages.append({"role": "assistant", "content": formatted_response})
         except Exception as e:
             st.error(f"An error occurred: {e}")
