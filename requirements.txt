@@ -1,6 +1,5 @@
-streamlit==1.29.0
+streamlit
 embedchain
-langchain-text-splitters
-pysqlite3-binary
+langchain-ollama
 ollama
-
+chromadb
