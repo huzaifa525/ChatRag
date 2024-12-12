@@ -24,15 +24,28 @@ def query_pdf_with_llm(pdf_text, question):
     return response
 
 def format_response_html(response):
-    """Format the response for simple and clean HTML/CSS visualization."""
+    """Format the response for clean and structured HTML/CSS visualization, including tables."""
     styled_response = "<div style='font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;'>"
-    for line in response.split("\n"):
-        if line.strip().startswith("1.") or line.strip().startswith("2.") or line.strip().startswith("3."):
-            styled_response += f"<p style='font-weight: bold;'>{line.strip()}</p>"
-        elif "**" in line:
-            styled_response += f"<p><b>{line.strip().replace('**', '')}</b></p>"
-        else:
-            styled_response += f"<p>{line.strip()}</p>"
+    lines = response.split("\n")
+    if any("|" in line for line in lines):  # Check if response contains table format
+        styled_response += "<table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>"
+        for line in lines:
+            if "|" in line:
+                cells = line.split("|")
+                if any(cell.strip() for cell in cells):
+                    styled_response += "<tr style='border-bottom: 1px solid #ddd;'>"
+                    for cell in cells:
+                        styled_response += f"<td style='padding: 8px; text-align: left;'>{cell.strip()}</td>"
+                    styled_response += "</tr>"
+        styled_response += "</table>"
+    else:
+        for line in lines:
+            if line.strip().startswith("1.") or line.strip().startswith("2.") or line.strip().startswith("3."):
+                styled_response += f"<p style='font-weight: bold;'>{line.strip()}</p>"
+            elif "**" in line:
+                styled_response += f"<p><b>{line.strip().replace('**', '')}</b></p>"
+            else:
+                styled_response += f"<p>{line.strip()}</p>"
     styled_response += "</div>"
     return styled_response
 
