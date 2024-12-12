@@ -23,19 +23,27 @@ def query_pdf_with_llm(pdf_text, question):
     response = llm.invoke(prompt)
     return response
 
-def format_response(response):
-    """Format the response for better visualization."""
-    formatted = "\n\n".join([f"**{line.strip()}**" if line.strip().startswith("-") else line.strip() for line in response.split("\n")])
-    return formatted
+def format_response_html(response):
+    """Format the response for HTML/CSS-based visualization."""
+    styled_response = "<div style='font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;'>"
+    for line in response.split("\n"):
+        if line.strip().startswith("-"):
+            styled_response += f"<p style='margin-left: 20px; font-weight: bold;'>{line.strip()}</p>"
+        elif line.strip().isdigit():
+            styled_response += f"<p style='margin-left: 20px; color: #007BFF;'>{line.strip()}</p>"
+        else:
+            styled_response += f"<p>{line.strip()}</p>"
+    styled_response += "</div>"
+    return styled_response
 
-def typing_effect_word_by_word(response, placeholder):
-    """Simulates typing effect for the response word by word."""
+def typing_effect_html(response, placeholder):
+    """Simulates typing effect for HTML-based responses."""
     words = response.split(" ")
     typed_response = ""
     for word in words:
         typed_response += word + " "
-        placeholder.markdown(f"```markdown\n{typed_response.strip()}\n```", unsafe_allow_html=True)
-        time.sleep(0.1)  # Adjust typing speed here
+        placeholder.markdown(typed_response, unsafe_allow_html=True)
+        time.sleep(0.1)
 
 st.title("📄CleverBot - Powered by CleverFlow")
 
@@ -64,7 +72,7 @@ if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
 
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
-        msg_placeholder.markdown("_Thinking..._", unsafe_allow_html=True)
+        msg_placeholder.markdown("<i>Thinking...</i>", unsafe_allow_html=True)
         full_response = ""
 
         try:
@@ -72,8 +80,8 @@ if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
                 st.error("Please upload a PDF first.")
             else:
                 full_response = query_pdf_with_llm(st.session_state.pdf_text, prompt)
-                formatted_response = format_response(full_response)
-                typing_effect_word_by_word(formatted_response, msg_placeholder)
+                formatted_response = format_response_html(full_response)
+                msg_placeholder.markdown(formatted_response, unsafe_allow_html=True)
                 st.session_state.messages.append({"role": "assistant", "content": formatted_response})
         except Exception as e:
             st.error(f"An error occurred: {e}")
