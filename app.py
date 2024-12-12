@@ -14,7 +14,7 @@ def embedchain_bot(db_path):
                     "temperature": 0.5,
                     "max_tokens": 1000,
                     "top_p": 1,
-                    "stream": True,
+                    "stream": False,
                 },
             },
             "vectordb": {
