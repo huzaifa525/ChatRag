@@ -14,7 +14,7 @@ def extract_text_from_pdf(pdf_file):
 def query_pdf_with_llm(pdf_text, question):
     """Queries the extracted text using the LLM."""
     llm = OllamaLLM(
-        model="gpt2:latest",
+        model="smollm:360m",
         base_url="http://localhost:11434/",
         temperature=0.3,
         max_tokens=2000,
