@@ -4,3 +4,4 @@ langchain-ollama
 ollama
 chromadb
 pydantic
+pysqlite3-binary
