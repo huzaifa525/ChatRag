@@ -11,9 +11,9 @@ def embedchain_bot(db_path):
                 "provider": "ollama",
                 "config": {
                     "model": "smollm2:360m",  # Valid model name on the Ollama server
-                    "base_url": "http://143.110.227.159:11434",  # Update with your server's base URL
-                    "temperature": 0.4,  # Lowered for efficiency
-                    "max_tokens": 1500,  # Increased for more context
+                    "base_url": "http://143.110.227.159:11434/",  # Update with your server's base URL
+                    "temperature": 0.3,  # Further lowered for faster responses
+                    "max_tokens": 2000,  # Adjusted for more robust context handling
                     "stream": True,
                 },
             },
@@ -22,17 +22,18 @@ def embedchain_bot(db_path):
                 "config": {
                     "collection_name": "chat-pdf",
                     "dir": db_path,
-                    "allow_reset": True
+                    "allow_reset": True,
+                    "batch_size": 1000,  # Optimized batch size for faster insertion
                 },
             },
             "embedder": {
                 "provider": "ollama",
                 "config": {
                     "model": "smollm2:360m",
-                    "base_url": "http://143.110.227.159:11434",
+                    "base_url": "http://143.110.227.159:11434/",
                 },
             },
-            "chunker": {"chunk_size": 3000, "chunk_overlap": 500, "length_function": "len"},  # Optimized chunking
+            "chunker": {"chunk_size": 2000, "chunk_overlap": 200, "length_function": "len"},  # Optimized chunking
         }
     )
 
