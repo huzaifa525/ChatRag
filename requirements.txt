@@ -3,3 +3,4 @@ embedchain
 langchain-ollama
 ollama
 chromadb
+pydantic
