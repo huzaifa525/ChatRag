@@ -12,8 +12,8 @@ def embedchain_bot(db_path):
                 "config": {
                     "model": "smollm2:360m",  # Valid model name on the Ollama server
                     "base_url": "http://143.110.227.159:11434/",  # Update with your server's base URL
-                    "temperature": 0.5,
-                    "max_tokens": 1000,
+                    "temperature": 0.4,  # Lowered for efficiency
+                    "max_tokens": 1500,  # Increased for more context
                     "stream": True,
                 },
             },
@@ -23,7 +23,7 @@ def embedchain_bot(db_path):
                     "collection_name": "chat-pdf",
                     "dir": db_path,
                     "allow_reset": True,
-                    "telemetry": False,  # Disable telemetry to suppress errors
+                    "indexing": {"speed": "high", "batch_size": 1000}  # Optimized indexing
                 },
             },
             "embedder": {
@@ -33,7 +33,7 @@ def embedchain_bot(db_path):
                     "base_url": "http://143.110.227.159:11434/",
                 },
             },
-            "chunker": {"chunk_size": 2000, "chunk_overlap": 0, "length_function": "len"},
+            "chunker": {"chunk_size": 3000, "chunk_overlap": 500, "length_function": "len"},  # Optimized chunking
         }
     )
 
@@ -53,11 +53,11 @@ def get_ec_app():
     return app
 
 with st.sidebar:
-    "### Ollama Configuration"
-    "Make sure your Ollama server is running."
+    "### CleverFlow Configuration"
+    "Make sure your CleverFlow server is running."
     st.markdown(
         """
-        Ensure the `smollm2:360m` model is available on your Ollama server. Run:
+        Ensure the `smollm2:360m` model is available on your CleverFlow server. Run:
         ```
         ollama pull smollm2:360m
         ```
