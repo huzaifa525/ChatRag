@@ -15,7 +15,7 @@ def query_pdf_with_llm(pdf_text, question):
     """Queries the extracted text using the LLM."""
     llm = OllamaLLM(
         model="mapler/gpt2:latest",
-        base_url="http://localhost:11434/",
+        base_url="http://localhost:44739/",
         temperature=0.3,
         max_tokens=2000,
     )
