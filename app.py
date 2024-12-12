@@ -14,13 +14,19 @@ def query_pdf_with_llm(pdf_text, question):
     """Queries the extracted text using the LLM."""
     llm = OllamaLLM(
         model="smollm2:360m",
-        base_url="http://143.110.227.159:11434",
+        base_url="http://143.110.227.159:11434/",
         temperature=0.3,
         max_tokens=2000,
     )
     prompt = f"Context: {pdf_text}\n\nQuestion: {question}\n\nAnswer:"
     response = llm.invoke(prompt)
     return response
+
+def format_response(response):
+    """Format the response for better visualization."""
+    formatted = response.replace("\n", "  ")  # Add double spaces for line breaks in markdown
+    formatted = formatted.replace("**", "\\*\\*")  # Escape existing bold indicators
+    return f"<div style='font-family:monospace;'>\n\n{formatted}\n\n</div>"
 
 st.title("📄CleverBot - Powered by CleverFlow")
 
@@ -43,7 +49,7 @@ uploaded_pdf = st.file_uploader("Upload your PDF", type="pdf")
 if uploaded_pdf:
     extracted_text = extract_text_from_pdf(uploaded_pdf)
     st.session_state.pdf_text = extracted_text  # Store extracted text in session state
-    st.markdown("PDF uploaded and processed successfully!")
+    st.markdown("<b>PDF uploaded and processed successfully!</b>", unsafe_allow_html=True)
 
 if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
     with st.chat_message("user"):
@@ -52,7 +58,7 @@ if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
 
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
-        msg_placeholder.markdown("Thinking...")
+        msg_placeholder.markdown("<i>Thinking...</i>", unsafe_allow_html=True)
         full_response = ""
 
         try:
@@ -60,7 +66,8 @@ if prompt := st.chat_input("Ask me anything about the uploaded PDF!"):
                 st.error("Please upload a PDF first.")
             else:
                 full_response = query_pdf_with_llm(st.session_state.pdf_text, prompt)
-                msg_placeholder.markdown(full_response)
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                formatted_response = format_response(full_response)
+                msg_placeholder.markdown(formatted_response, unsafe_allow_html=True)
+                st.session_state.messages.append({"role": "assistant", "content": formatted_response})
         except Exception as e:
             st.error(f"An error occurred: {e}")
