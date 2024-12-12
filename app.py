@@ -22,8 +22,7 @@ def embedchain_bot(db_path):
                 "config": {
                     "collection_name": "chat-pdf",
                     "dir": db_path,
-                    "allow_reset": True,
-                    "indexing": {"speed": "high", "batch_size": 1000}  # Optimized indexing
+                    "allow_reset": True
                 },
             },
             "embedder": {
